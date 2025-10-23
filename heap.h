@@ -62,12 +62,42 @@ public:
 private:
   /// Add whatever helper functions and data members you need below
 
+  std::vector<T> data_;
+  int m_;
+  PComparator comp_;
 
+  void trickleUp(size_t index);
+  void heapify(size_t index);
 
 
 };
 
 // Add implementation of member functions here
+template <typename T, typename PComparator>
+Heap<T, PComparator>::Heap(int m, PComparator c) : m_(m), comp_(c) {
+
+}
+
+template <typename T, typename PComparator>
+Heap<T, PComparator>::~Heap() {
+
+}
+
+template <typename T, typename PComparator>
+bool Heap<T, PComparator>::empty() const {
+  return data_.empty();
+}
+
+template <typename T, typename PComparator>
+size_t Heap<T, PComparator>::size() const {
+  return data_.size();
+}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::push(const T& item) {
+  data_.push_back(item);
+  trickleUp(data_.size() - 1);
+}
 
 
 // We will start top() for you to handle the case of 
@@ -81,13 +111,13 @@ T const & Heap<T,PComparator>::top() const
     // ================================
     // throw the appropriate exception
     // ================================
-
+    throw std::underflow_error("Heap Empty");
 
   }
   // If we get here we know the heap has at least 1 item
   // Add code to return the top element
 
-
+  return data_.front();
 
 }
 
@@ -101,15 +131,51 @@ void Heap<T,PComparator>::pop()
     // ================================
     // throw the appropriate exception
     // ================================
-
+    throw std::underflow_error("Heap Empty");
 
   }
 
+  data_[0] = data_.back();
+  data_.pop_back();
 
+  if(!empty()){
+    heapify(0);
+  }
 
 }
 
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::trickleUp(size_t index){
+  if (index == 0){
+    return;
+  }
 
+  size_t parent = (index - 1) / m_;
+
+  if(comp_(data_[index], data_[parent])) {
+    std::swap(data_[index], data_[parent]);
+    trickleUp(parent);
+  }
+}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::heapify(size_t index) {
+  size_t best = index;
+
+
+  for (int i = 1; i <= m_ ; i++ ) {
+    size_t child = m_ * index + i;
+    if(child < data_.size() && comp_(data_[child],data_[best])) {
+      best = child;
+    }
+  }
+
+  if(best != index) {
+    std::swap(data_[index],data_[best]);
+    heapify(best);
+  }
+
+}
 
 #endif
 
